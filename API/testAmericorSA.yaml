@@ -1,0 +1,508 @@
+openapi: 3.0.0
+x-stoplight:
+  id: sgcy2vwst3aan
+info:
+  title: testAmericorSA
+  version: '1.0'
+  summary: Leads
+  description: Leads
+  contact:
+    name: Vadim
+    email: tsanavavadim@gmail.com
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /api/v1/leads:
+    post:
+      summary: Create new lead
+      operationId: post-lead
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccsessContainer'
+              examples:
+                Example 1:
+                  value:
+                    succsess: true
+                    message: string
+                    leadId: string
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  description: First Name
+                  example: Vadim
+                  maxLength: 255
+                  minLength: 1
+                lastName:
+                  type: string
+                  example: Tsanava
+                  maxLength: 255
+                  minLength: 1
+                  description: Last Name
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: test@gmail.com
+                  description: contact e-mail
+                dateOfBirth:
+                  type: string
+                  format: date
+                  example: '2000-12-31'
+                  description: Date of birth
+                createDate:
+                  type: string
+                  format: date
+                contactPhone:
+                  type: string
+                  example: '+19957881122'
+                  description: Contact phone
+                contactAddress:
+                  type: string
+                  example: Tbilisi. Tsotne Dadiani str.
+                  description: Contact Address
+              required:
+                - firstName
+                - lastName
+                - contactPhone
+            examples:
+              Example 1:
+                value:
+                  firstName: Vadim
+                  lastName: Tsanava
+                  email: test@gmail.com
+                  dateOfBirth: '2000-12-31'
+                  createDate: '2019-08-24'
+                  contactPhone: '+19957881122'
+                  contactAddress: Tbilisi. Tsotne Dadiani str.
+      parameters:
+        - schema:
+            type: string
+            example: ' 1-58406520-a006649123e371903a2ua459'
+          in: header
+          name: X-TRACE-ID
+          description: Tracing identifier
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-USER-INFO
+          description: User info
+          required: true
+      description: Create new Lead
+      security:
+        - API Key - 1:
+            - accountWrite
+      tags:
+        - testAmericorSA
+    parameters: []
+  '/api/v1/leads{leadId}':
+    parameters:
+      - schema:
+          type: integer
+        name: leadId
+        in: path
+        required: true
+        description: Id of an existing Lead
+    get:
+      summary: Get lead
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    firstName: Vadim
+                    lastName: string
+                    email: lead@gmail.com
+                    dateOfBirth: '1997-10-31'
+                    createDate: '2019-08-24'
+                    contactPhone: '+19951237788'
+                    contactAddress: string
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+              examples:
+                Example 1:
+                  value:
+                    succsess: false
+                    message: not found
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+      operationId: get-api-v1-leads-leadId
+      description: Get Lead by ID
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: X-TRACE-ID
+          description: Tracing identifier
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-USER-INFO
+          description: User info
+          required: true
+      tags:
+        - testAmericorSA
+    patch:
+      summary: Update lead info
+      operationId: patch-api-v1-leads-leadId
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccsessContainer'
+              examples: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '500':
+          description: Internal Server Error
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: X-TRACE-ID
+          description: Tracing identifier
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-USER-INFO
+          description: User info
+          required: true
+      description: Update the information of an existing lead
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                leastName:
+                  type: string
+                email:
+                  type: string
+                contactPhone:
+                  type: string
+            examples:
+              Update first name:
+                value:
+                  firstName: Nino
+              Epdate email:
+                value:
+                  email: nino@testcompany.com
+      tags:
+        - testAmericorSA
+    delete:
+      summary: Delete lead
+      operationId: delete-api-v1-leads-leadId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccsessContainer'
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+        '400':
+          description: Bad Request
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+        '403':
+          description: Forbidden
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+        '500':
+          description: Internal Server Error
+          headers:
+            X-TRACE-ID:
+              schema:
+                type: string
+              description: Tracing identifier
+            X-USER-INFO:
+              schema:
+                type: string
+              description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorContainer'
+              examples:
+                Example 1:
+                  value:
+                    succsess: false
+                    message: internal server error
+      description: Delete Lead by ID
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: X-TRACE-ID
+          description: Tracing identifier
+          required: true
+        - schema:
+            type: string
+          in: header
+          name: X-USER-INFO
+          description: User info
+          required: true
+      tags:
+        - testAmericorSA
+components:
+  schemas:
+    Lead:
+      title: Lead
+      type: object
+      examples:
+        - id: 0
+          firstName: string
+          lastName: string
+          email: lead@gmail.com
+          dateOfBirth: '1997-10-31'
+          createDate: '2019-08-24'
+          contactPhone: '+19951237788'
+          contactAddress: string
+      properties:
+        leadId:
+          type: integer
+          description: Уникальный идентификатор
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        email:
+          type: string
+          format: email
+          description: ел.почта
+          example: lead@gmail.com
+          maxLength: 255
+        dateOfBirth:
+          type: string
+          format: date
+          example: '1997-10-31'
+          description: Дата рождения
+        createDate:
+          type: string
+          format: date
+          description: Дата создания
+        contactPhone:
+          type: string
+          description: Контактный телефон
+          example: '+19951237788'
+        contactAddress:
+          type: string
+          description: Адрес
+      required:
+        - leadId
+        - firstName
+        - lastName
+        - createDate
+        - contactPhone
+    SuccsessContainer:
+      title: SucsessContainer
+      x-stoplight:
+        id: 81bb6f5cf5cf2
+      type: object
+      properties:
+        succsess:
+          type: boolean
+          default: true
+        message:
+          type: string
+        leadId:
+          type: string
+      examples: []
+    ErrorContainer:
+      title: ErrorContainer
+      x-stoplight:
+        id: stzr0ayv3e1hn
+      type: object
+      properties:
+        succsess:
+          type: boolean
+        message:
+          type: string
+  securitySchemes:
+    API Key - 1:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: ' https://example.org/token'
+          refreshUrl: ' https://example.org/refresh'
+          scopes:
+            accountRead: allow to read
+            accountWrite: allow to whrite
+      description: test
