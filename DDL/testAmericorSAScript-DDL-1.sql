@@ -1,0 +1,103 @@
+-- employees таблица с сотрудниками
+CREATE TABLE EMPLOYEES (
+    EMPLOYEE_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    FIRST_NAME TEXT NOT NULL,
+    LAST_NAME TEXT NOT NULL,
+    CONTACT_PHONE VARCHAR(20) NOT NULL
+    -- Другие необходимые поля
+);
+
+-- leads таблица с ЛИДами
+
+CREATE TABLE LEADS (
+    LEAD_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    FIRST_NAME VARCHAR(255) NOT NULL,
+    LAST_NAME VARCHAR(255) NOT NULL,
+    DATE_OF_BIRTH DATE45,
+    CONTACT_PHONE VARCHAR(20) NOT NULL,
+    EMAIL VARCHAR(255),
+    CONTACT_ADDRESS VARCHAR(255),
+    SSN VARCHAR(255), 
+    CREATE_DATE DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+-- прим. при бОльшем кол-ве вводных кол-во индексов можно расширить
+CREATE INDEX leads_FIRST_NAME_IDX ON LEADS (FIRST_NAME);
+CREATE INDEX leads_LAST_NAME_IDX ON LEADS (LAST_NAME);
+CREATE UNIQUE INDEX leads_FIRST_LAST_PHONE_IDX ON LEADS (FIRST_NAME,LAST_NAME,CONTACT_PHONE);
+
+-- промежуточная таблица для связи сотрудников и лидов many-to-many 
+--(прим.предлагаю заложить в базе такую возможность, на слуйчай если закахчики в процессе жизни БД будут менять требования "хотим один-к-одному, хотим многие-ко-многим". Ибо в ходе эксплуатации БД вносить изменение будет труднореализуемо)
+CREATE TABLE EMPLOYEE_LEAD (
+    EMPLOYEE_ID INTEGER,
+    LEAD_ID INTEGER,
+    PRIMARY KEY (EMPLOYEE_ID, LEAD_ID),
+    FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(EMPLOYEE_ID),
+    FOREIGN KEY (LEAD_ID) REFERENCES LEADS(LEAD_ID)
+);
+
+-- CUSTOMERS таблица с клиентами  
+CREATE TABLE CUSTOMERS (
+    CUSTOMER_ID INTEGER,
+    STATUS TEXT CHECK(STATUS IN ('ENROLLMENT', 'CANCELLED', 'COMPLETED')),
+    FIRST_NAME TEXT NOT NULL,
+    LAST_NAME TEXT NOT NULL,
+    DATE_OF_BIRTH DATE NOT NULL,
+    CONTACT_PHONE TEXT NOT NULL,
+    CONTACT_ADDRESS TEXT,
+    EMAIL TEXT,
+    SSN VARCHAR(255) NOT NULL,
+    LEAD_ID INTEGER NOT NULL,
+    EMPLOYEE_ID INTEGER,
+    CREATE_DATE DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Другие необходимые поля
+    PRIMARY KEY (LEAD_ID, CUSTOMER_ID), -- Композитный первичный ключ
+    FOREIGN KEY (LEAD_ID) REFERENCES LEADS(LEAD_ID),
+    FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(EMPLOYEE_ID)
+);
+-- прим. при бОльшем кол-ве вводных кол-во индексов можно расширить
+CREATE INDEX CUSTOMERS_SSN_IDX ON CUSTOMERS (SSN);
+CREATE UNIQUE INDEX CUSTOMERS_NAME_SSN_IDX ON CUSTOMERS (FIRST_NAME,LAST_NAME,SSN);
+
+
+-- Создание триггера для автоматического инкрементирования CUSTOMER_ID 
+-- (прим. в SQLlite при использовании AUTOINCREMENT по дефолту ставится праймери кей на поле)
+CREATE TRIGGER increment_customer_id
+BEFORE INSERT ON CUSTOMERS
+FOR EACH ROW
+WHEN NEW.CUSTOMER_ID IS NULL
+BEGIN
+    SELECT COALESCE(MAX(CUSTOMER_ID) + 1, 1) FROM CUSTOMERS WHERE LEAD_ID = NEW.LEAD_ID;
+    UPDATE CUSTOMERS SET CUSTOMER_ID = CASE WHEN NEW.CUSTOMER_ID IS NULL THEN 1 ELSE NEW.CUSTOMER_ID END WHERE rowid = NEW.rowid;
+END;
+
+-- промежуточная таблица для связи сотрудников и клиентов many-to-many
+--(прим.предлагаю заложить в базе такую возможность, на слуйчай если закахчики в процессе жизни БД будут менять требования "хотим один-к-одному, хотим многие-ко-многим". Ибо в ходе эксплуатации БД вносить изменение будет труднореализуемо)
+CREATE TABLE EMPLOYEE_CUSTOMER (
+    EMPLOYEE_ID INTEGER,
+    CUSTOMER_ID INTEGER,
+    PRIMARY KEY (EMPLOYEE_ID, CUSTOMER_ID),
+    FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(EMPLOYEE_ID),
+    FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID)
+);
+-- Создание таблицы Communications
+CREATE TABLE COMMUNICATIONS (
+    COMMUNICATION_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    LEAD_ID INTEGER,
+    CUSTOMER_ID INTEGER,
+    CREATE_DATE DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Другие необходимые поля
+    FOREIGN KEY (LEAD_ID) REFERENCES LEADS(LEAD_ID),
+    FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID)
+);
+
+-- Создание таблицы Communication_Details
+CREATE TABLE COMMUNICATION_DETAILS (
+    DETAIL_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    COMMUNICATION_ID INTEGER,
+    DETAIL_TEXT TEXT NOT NULL,
+    COMMUNICATION_TYPE TEXT NOT NULL,
+    COMMUNICATION_DATE DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- Другие необходимые поля
+    FOREIGN KEY (COMMUNICATION_ID) REFERENCES COMMUNICATIONS(COMMUNICATION_ID)
+);
+-- прим. в DDL не указал представления. Дополнительно на таблицы надо вьюхи сделать
