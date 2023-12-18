@@ -68,6 +68,8 @@ paths:
               schema:
                 type: string
               description: User info
+        '409':
+          description: Conflict
         '500':
           description: Internal Server Error
           content:
@@ -105,16 +107,13 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 255
-                  example: test@gmail.com
+                  example: test1@gmail.com
                   description: contact e-mail
                 dateOfBirth:
                   type: string
                   format: date
                   example: '2000-12-31'
                   description: Date of birth
-                createDate:
-                  type: string
-                  format: date
                 contactPhone:
                   type: string
                   example: '+19957881122'
@@ -123,6 +122,9 @@ paths:
                   type: string
                   example: Tbilisi. Tsotne Dadiani str.
                   description: Contact Address
+                SSN:
+                  type: string
+                  description: Social Security number
               required:
                 - firstName
                 - lastName
@@ -465,6 +467,9 @@ components:
         contactAddress:
           type: string
           description: Адрес
+        SSN:
+          type: string
+          description: Social Security number
       required:
         - leadId
         - firstName
